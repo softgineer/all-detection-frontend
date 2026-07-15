@@ -223,9 +223,6 @@ export default function App(){
 
       {/* HERO */}
       <div style={{background:"linear-gradient(135deg,var(--blue-600) 0%,#1e40af 100%)",padding:"48px 32px 56px",textAlign:"center",color:"white"}}>
-        <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(255,255,255,0.15)",borderRadius:99,padding:"4px 14px",fontSize:12,fontWeight:600,marginBottom:20,backdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,0.2)"}}>
-          FUTA · SEN/20/5102 · Dr. Mrs. O. V. Olatunde
-        </div>
         <h1 style={{fontSize:"clamp(24px,4vw,44px)",fontWeight:800,lineHeight:1.15,marginBottom:14}}>
           Acute Lymphoblastic Leukemia<br/>Detection System
         </h1>
@@ -360,8 +357,7 @@ export default function App(){
       </main>
 
       <footer style={{borderTop:"1px solid var(--gray-100)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--gray-400)"}}>
-        Multi-Stage Ensemble Learning System · Goodness Ikubuwaje Oluwasegun · SEN/20/5102<br/>
-        Federal University of Technology Akure · Dept. of Software Engineering · Supervisor: Dr. Mrs. O. V. Olatunde
+        Multi-Stage Ensemble Learning System ·
       </footer>
     </div>
   );
