@@ -114,7 +114,7 @@ function ReportStamp({result}){
     <div style={{borderRadius:"var(--radius)",background:"var(--white)",border:`1px solid ${border}`,borderLeft:`4px solid ${accent}`,overflow:"hidden"}}>
       <div style={{padding:"8px 20px",background:bg,borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:6}}>
         <span style={{fontSize:10.5,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",color:accent}}>AI-Assisted Analysis · Research Use Only</span>
-        <span style={{fontSize:10.5,color:accent,fontFamily:"var(--mono)"}}>Ensemble v2 · stacking</span>
+        <span style={{fontSize:10.5,color:accent,fontFamily:"var(--mono)"}}>Ensemble v2 · majority vote</span>
       </div>
       <div style={{padding:"20px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
         <div>
@@ -409,6 +409,7 @@ export default function App(){
           <div style={{width:28,height:28,borderRadius:6,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--serif)",fontWeight:600,color:"white",fontSize:14}}>+</div>
           <div>
             <span style={{fontFamily:"var(--serif)",fontWeight:600,fontSize:15,color:"white"}}>ALL Detection System</span>
+            <span style={{fontSize:11,color:"rgba(255,255,255,0.45)",marginLeft:10,letterSpacing:"0.02em"}}>FUTA · Dept. of Software Engineering</span>
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -518,7 +519,7 @@ export default function App(){
                   <ClassifierCard name="Gradient Boosting" vote={result.votes.GB} prob={result.classifier_probs.GB} color="var(--amber-700)"/>
                 </div>
                 <div style={{marginTop:14,padding:"10px 14px",background:"var(--paper)",borderRadius:"var(--radius-sm)",border:"1px solid var(--line)",fontSize:11,color:"var(--slate-400)",fontFamily:"var(--mono)"}}>
-                  stacked meta-learner · validation-tuned threshold
+                  hard majority vote · 2-of-3 classifier agreement
                 </div>
               </Card>
 
@@ -531,6 +532,7 @@ export default function App(){
                 <div style={{height:1,background:"var(--line)",margin:"20px 0"}}/>
                 <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:14}}>Model Performance (test set)</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {/* TODO: replace with real majority_vote_ensemble.py output once available */}
                   <StatBar label="Accuracy"  value={90.22} color="var(--teal-600)"/>
                   <StatBar label="Precision" value={89.52} color="var(--ink-500)"/>
                   <StatBar label="Recall"    value={99.24} color="var(--amber-700)"/>
@@ -565,7 +567,7 @@ export default function App(){
               {[
                 {title:"Preprocessing",desc:"Bilateral filtering + Otsu WBC nucleus segmentation"},
                 {title:"Feature Extraction",desc:"ResNet50 deep features + GLCM + Shape + Statistical (2,091-d)"},
-                {title:"Ensemble Classification",desc:"SVM + Random Forest + Gradient Boosting with stacked meta-learner"},
+                {title:"Ensemble Classification",desc:"SVM + Random Forest + Gradient Boosting combined by majority vote"},
               ].map((c,i)=>(
                 <div key={c.title} style={{padding:16,borderRadius:"var(--radius-sm)",background:"var(--paper)",border:"1px solid var(--line)",borderTop:"2px solid var(--teal-600)"}}>
                   <p style={{fontSize:10,fontWeight:700,color:"var(--teal-700)",fontFamily:"var(--mono)",marginBottom:6}}>STAGE {i+1}</p>
@@ -580,7 +582,7 @@ export default function App(){
       </main>
 
       <footer style={{borderTop:"1px solid var(--line)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--slate-400)"}}>
-        Multi-Stage Ensemble Learning System for ALL Detection ·
+        Multi-Stage Ensemble Learning System for ALL Detection · Federal University of Technology, Akure · Dept. of Software Engineering
       </footer>
     </div>
   );
