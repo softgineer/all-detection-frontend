@@ -237,6 +237,60 @@ function HistoryView({history,loading,error,summary,onRefresh,onClear}){
   );
 }
 
+function LoginScreen({onLoggedIn}){
+  const [password,setPassword]=useState("");
+  const [loading,setLoading]=useState(false);
+  const [error,setError]=useState(null);
+
+  const submit=async(e)=>{
+    e.preventDefault();
+    if(!password||loading)return;
+    setLoading(true);setError(null);
+    try{
+      const res=await fetch(`${API_BASE}/api/auth/login`,{
+        method:"POST",
+        headers:{...NGROK_HEADERS,"Content-Type":"application/json"},
+        body:JSON.stringify({password}),
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(data.detail||`HTTP ${res.status}`);
+      onLoggedIn(data.token);
+    }catch(e){setError(e.message||"Login failed. Check your connection.");}
+    finally{setLoading(false);}
+  };
+
+  return(
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--offwhite)",padding:24}}>
+      <Card style={{padding:36,width:"100%",maxWidth:380}} className="fade-in">
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{width:52,height:52,borderRadius:14,background:"var(--blue-600)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,margin:"0 auto 14px"}}>🩸</div>
+          <h1 style={{fontSize:18,fontWeight:800,color:"var(--gray-900)",marginBottom:4}}>ALL Detection</h1>
+          <p style={{fontSize:13,color:"var(--gray-400)"}}>Sign in to continue</p>
+        </div>
+        <form onSubmit={submit}>
+          <label style={{fontSize:12,fontWeight:600,color:"var(--gray-600)",display:"block",marginBottom:6}}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={e=>setPassword(e.target.value)}
+            placeholder="Enter admin password"
+            autoFocus
+            style={{width:"100%",padding:"11px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-200)",fontSize:14,fontFamily:"var(--sans)",marginBottom:14,outline:"none"}}
+          />
+          {error&&(
+            <div style={{marginBottom:14,padding:"10px 14px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",fontSize:13,color:"var(--red-600)"}}>
+              ⚠ {error}
+            </div>
+          )}
+          <button type="submit" disabled={loading||!password} style={{width:"100%",padding:"12px 0",borderRadius:"var(--radius-sm)",border:"none",background:loading||!password?"var(--gray-100)":"var(--blue-600)",color:loading||!password?"var(--gray-400)":"white",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+            {loading?<><div className="spin" style={{width:16,height:16,border:"2px solid var(--gray-300)",borderTopColor:"var(--blue-500)",borderRadius:"50%"}}/>Signing in…</>:"Sign In"}
+          </button>
+        </form>
+      </Card>
+    </div>
+  );
+}
+
 export default function App(){
   injectCSS();
   const [file,setFile]=useState(null);
@@ -253,6 +307,29 @@ export default function App(){
   const [historySummary,setHistorySummary]=useState({ALL_positive:0,Normal:0});
   const inputRef=useRef();
 
+  // ── Auth ──────────────────────────────────────────────────────────────
+  const [token,setToken]=useState(()=>localStorage.getItem("all_auth_token"));
+  const [authChecked,setAuthChecked]=useState(false);
+
+  const authHeaders=useCallback((extra={})=>({
+    ...NGROK_HEADERS,...extra,
+    ...(token?{Authorization:`Bearer ${token}`}:{}),
+  }),[token]);
+
+  const logout=useCallback(()=>{
+    localStorage.removeItem("all_auth_token");
+    setToken(null);
+  },[]);
+
+  useEffect(()=>{
+    if(!token){setAuthChecked(true);return;}
+    fetch(`${API_BASE}/api/auth/check`,{headers:authHeaders()})
+      .then(r=>{if(!r.ok)throw new Error("invalid");return r.json();})
+      .then(()=>setAuthChecked(true))
+      .catch(()=>{logout();setAuthChecked(true);});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+
   useEffect(()=>{
     fetch(`${API_BASE}/api/health`,{headers:NGROK_HEADERS})
       .then(r=>r.json())
@@ -263,14 +340,15 @@ export default function App(){
   const fetchHistory=useCallback(async()=>{
     setHistoryLoading(true);setHistoryError(null);
     try{
-      const res=await fetch(`${API_BASE}/api/history`,{headers:NGROK_HEADERS});
+      const res=await fetch(`${API_BASE}/api/history`,{headers:authHeaders()});
+      if(res.status===401){logout();return;}
       if(!res.ok)throw new Error(`HTTP ${res.status}`);
       const data=await res.json();
       setHistory(data.records||[]);
       setHistorySummary(data.summary||{ALL_positive:0,Normal:0});
     }catch(e){setHistoryError(e.message);}
     finally{setHistoryLoading(false);}
-  },[]);
+  },[authHeaders,logout]);
 
   useEffect(()=>{
     if(activeTab==="history")fetchHistory();
@@ -279,7 +357,8 @@ export default function App(){
   const clearHistory=async()=>{
     if(!window.confirm("Clear all prediction history? This cannot be undone."))return;
     try{
-      await fetch(`${API_BASE}/api/history`,{method:"DELETE",headers:NGROK_HEADERS});
+      const res=await fetch(`${API_BASE}/api/history`,{method:"DELETE",headers:authHeaders()});
+      if(res.status===401){logout();return;}
       fetchHistory();
     }catch(e){setHistoryError(e.message);}
   };
@@ -295,13 +374,26 @@ export default function App(){
     const form=new FormData();
     form.append("file",file);
     try{
-      const res=await fetch(`${API_BASE}/api/predict`,{method:"POST",body:form,headers:NGROK_HEADERS});
+      const res=await fetch(`${API_BASE}/api/predict`,{method:"POST",body:form,headers:authHeaders()});
+      if(res.status===401){logout();return;}
       if(!res.ok){const e=await res.json().catch(()=>({detail:"Unknown error"}));throw new Error(e.detail||`HTTP ${res.status}`);}
       setResult(await res.json());
       if(activeTab==="history")fetchHistory();
     }catch(e){setError(e.message);}
     finally{setLoading(false);}
   };
+
+  if(!authChecked){
+    return(
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <div className="spin" style={{width:28,height:28,border:"3px solid var(--gray-200)",borderTopColor:"var(--blue-500)",borderRadius:"50%"}}/>
+      </div>
+    );
+  }
+
+  if(!token){
+    return <LoginScreen onLoggedIn={t=>{localStorage.setItem("all_auth_token",t);setToken(t);}}/>;
+  }
 
   return(
     <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
@@ -328,6 +420,7 @@ export default function App(){
             {apiOk===null?"Checking API…":apiOk?"Backend Online":"Backend Offline"}
           </div>
           <Badge color="blue">v1.0.0</Badge>
+          <button onClick={logout} title="Log out" style={{padding:"6px 12px",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-200)",background:"var(--white)",fontSize:12,fontWeight:600,color:"var(--gray-500)"}}>Log out</button>
         </div>
       </nav>
 
