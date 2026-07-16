@@ -42,6 +42,17 @@ function injectCSS(){
   },[]);
 }
 
+function useIsMobile(breakpoint=680){
+  const [isMobile,setIsMobile]=useState(()=>typeof window!=="undefined"?window.innerWidth<breakpoint:false);
+  useEffect(()=>{
+    const onResize=()=>setIsMobile(window.innerWidth<breakpoint);
+    window.addEventListener("resize",onResize);
+    onResize();
+    return ()=>window.removeEventListener("resize",onResize);
+  },[breakpoint]);
+  return isMobile;
+}
+
 function Card({children,style={},className=""}){
   return(
     <div className={className} style={{background:"var(--white)",borderRadius:"var(--radius)",border:"1px solid var(--line)",boxShadow:"var(--shadow-sm)",...style}}>
@@ -105,28 +116,28 @@ function UploadZone({onFile,file,dragOver,setDragOver,inputRef}){
   );
 }
 
-function ReportStamp({result}){
+function ReportStamp({result,isMobile}){
   const isPos=result.label_id===1;
   const accent = isPos ? "var(--red-700)" : "var(--teal-700)";
   const bg     = isPos ? "var(--red-50)"  : "var(--teal-50)";
   const border = isPos ? "#eeccc5" : "#c9e7e2";
   return(
     <div style={{borderRadius:"var(--radius)",background:"var(--white)",border:`1px solid ${border}`,borderLeft:`4px solid ${accent}`,overflow:"hidden"}}>
-      <div style={{padding:"8px 20px",background:bg,borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:6}}>
+      <div style={{padding:isMobile?"8px 14px":"8px 20px",background:bg,borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:6}}>
         <span style={{fontSize:10.5,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",color:accent}}>AI-Assisted Analysis · Research Use Only</span>
         <span style={{fontSize:10.5,color:accent,fontFamily:"var(--mono)"}}>Ensemble v2 · majority vote</span>
       </div>
-      <div style={{padding:"20px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
+      <div style={{padding:isMobile?"18px 16px":"20px 24px",display:"flex",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",flexWrap:"wrap",gap:16,flexDirection:isMobile?"column":"row"}}>
         <div>
           <p style={{fontSize:11,color:"var(--slate-400)",fontWeight:600,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.05em"}}>Classification</p>
-          <p style={{fontSize:26,fontWeight:600,fontFamily:"var(--serif)",color:accent}}>{result.label}</p>
+          <p style={{fontSize:isMobile?22:26,fontWeight:600,fontFamily:"var(--serif)",color:accent}}>{result.label}</p>
         </div>
         <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
-          <div style={{textAlign:"right"}}>
+          <div style={{textAlign:isMobile?"left":"right"}}>
             <p style={{fontSize:11,color:"var(--slate-400)",marginBottom:2}}>Confidence</p>
             <p style={{fontSize:20,fontWeight:600,fontFamily:"var(--mono)",color:"var(--ink-900)"}}>{result.confidence}%</p>
           </div>
-          <div style={{textAlign:"right"}}>
+          <div style={{textAlign:isMobile?"left":"right"}}>
             <p style={{fontSize:11,color:"var(--slate-400)",marginBottom:2}}>Inference time</p>
             <p style={{fontSize:20,fontWeight:600,fontFamily:"var(--mono)",color:"var(--ink-900)"}}>{result.inference_ms}ms</p>
           </div>
@@ -168,11 +179,34 @@ function Skeleton({h=20,w="100%",radius=6}){
   );
 }
 
-function HistoryRow({record}){
+function HistoryRow({record,isMobile}){
   const isPos=record.label_id===1;
   const date=new Date(record.timestamp);
   const dateStr=date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
   const timeStr=date.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+  const votes=record.votes&&Object.entries(record.votes).map(([k,v])=>(
+    <span key={k} title={k} style={{fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:4,background:v===1?"var(--red-50)":"var(--teal-50)",color:v===1?"var(--red-700)":"var(--teal-700)"}}>{k[0]}</span>
+  ));
+  if(isMobile){
+    return(
+      <div style={{padding:"14px 16px",borderBottom:"1px solid var(--line)",display:"flex",flexDirection:"column",gap:8}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+          <div style={{minWidth:0}}>
+            <p style={{fontSize:13,fontWeight:600,color:"var(--ink-700)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{record.filename||"unnamed"}</p>
+            <p style={{fontSize:11,color:"var(--slate-400)"}}>{dateStr} · {timeStr}</p>
+          </div>
+          <Badge color={isPos?"red":"teal"}>{record.label||(isPos?"ALL +":"Normal")}</Badge>
+        </div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{display:"flex",gap:14,fontSize:12,color:"var(--ink-500)",fontFamily:"var(--mono)"}}>
+            <span>{record.confidence}%</span>
+            <span style={{color:"var(--slate-400)"}}>{record.inference_ms}ms</span>
+          </div>
+          <div style={{display:"flex",gap:4}}>{votes}</div>
+        </div>
+      </div>
+    );
+  }
   return(
     <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,alignItems:"center",padding:"14px 16px",borderBottom:"1px solid var(--line)"}}>
       <div>
@@ -182,24 +216,20 @@ function HistoryRow({record}){
       <div><Badge color={isPos?"red":"teal"}>{record.label||(isPos?"ALL +":"Normal")}</Badge></div>
       <div style={{fontSize:13,fontFamily:"var(--mono)",color:"var(--ink-700)"}}>{record.confidence}%</div>
       <div style={{fontSize:12,fontFamily:"var(--mono)",color:"var(--slate-400)"}}>{record.inference_ms}ms</div>
-      <div style={{display:"flex",gap:4}}>
-        {record.votes&&Object.entries(record.votes).map(([k,v])=>(
-          <span key={k} title={k} style={{fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:4,background:v===1?"var(--red-50)":"var(--teal-50)",color:v===1?"var(--red-700)":"var(--teal-700)"}}>{k[0]}</span>
-        ))}
-      </div>
+      <div style={{display:"flex",gap:4}}>{votes}</div>
     </div>
   );
 }
 
-function HistoryView({history,loading,error,summary,onRefresh,onClear}){
+function HistoryView({history,loading,error,summary,onRefresh,onClear,isMobile}){
   return(
     <div className="fade-in">
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:isMobile?"flex-start":"center",marginBottom:20,flexWrap:"wrap",gap:12,flexDirection:isMobile?"column":"row"}}>
         <div>
           <h2 style={{fontSize:19,fontWeight:600,fontFamily:"var(--serif)",color:"var(--ink-900)",marginBottom:4}}>Case History</h2>
           <p style={{fontSize:12,color:"var(--slate-400)"}}>Persisted on disk · {history.length} record{history.length===1?"":"s"} shown</p>
         </div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
           <Badge color="red">ALL+ {summary.ALL_positive||0}</Badge>
           <Badge color="teal">Normal {summary.Normal||0}</Badge>
           <button onClick={onRefresh} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--line-strong)",background:"var(--white)",fontSize:12,fontWeight:600,color:"var(--ink-700)"}}>↻ Refresh</button>
@@ -214,11 +244,13 @@ function HistoryView({history,loading,error,summary,onRefresh,onClear}){
       )}
 
       <Card style={{padding:0,overflow:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,padding:"12px 16px",background:"var(--paper)",borderBottom:"1px solid var(--line)"}}>
-          {["File / Time","Result","Confidence","Latency","Votes"].map(h=>(
-            <span key={h} style={{fontSize:11,fontWeight:700,color:"var(--slate-400)",textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</span>
-          ))}
-        </div>
+        {!isMobile&&(
+          <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,padding:"12px 16px",background:"var(--paper)",borderBottom:"1px solid var(--line)"}}>
+            {["File / Time","Result","Confidence","Latency","Votes"].map(h=>(
+              <span key={h} style={{fontSize:11,fontWeight:700,color:"var(--slate-400)",textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</span>
+            ))}
+          </div>
+        )}
 
         {loading&&(
           <div style={{padding:24,display:"flex",flexDirection:"column",gap:10}}>
@@ -232,7 +264,7 @@ function HistoryView({history,loading,error,summary,onRefresh,onClear}){
           </div>
         )}
 
-        {!loading&&history.map(r=>(<HistoryRow key={r.id} record={r}/>))}
+        {!loading&&history.map(r=>(<HistoryRow key={r.id} record={r} isMobile={isMobile}/>))}
       </Card>
     </div>
   );
@@ -242,6 +274,7 @@ function LoginScreen({onLoggedIn}){
   const [password,setPassword]=useState("");
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState(null);
+  const isMobile=useIsMobile();
 
   const submit=async(e)=>{
     e.preventDefault();
@@ -262,7 +295,7 @@ function LoginScreen({onLoggedIn}){
 
   return(
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--ink-900)",padding:24}}>
-      <Card style={{padding:"40px 36px",width:"100%",maxWidth:380,border:"1px solid var(--ink-700)"}} className="fade-in">
+      <Card style={{padding:isMobile?"32px 22px":"40px 36px",width:"100%",maxWidth:380,border:"1px solid var(--ink-700)"}} className="fade-in">
         <div style={{textAlign:"center",marginBottom:28}}>
           <div style={{width:44,height:44,borderRadius:8,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
             <span style={{color:"white",fontSize:18,fontFamily:"var(--serif)",fontWeight:600}}>+</span>
@@ -299,6 +332,7 @@ function LoginScreen({onLoggedIn}){
 
 export default function App(){
   injectCSS();
+  const isMobile=useIsMobile();
   const [file,setFile]=useState(null);
   const [preview,setPreview]=useState(null);
   const [dragOver,setDragOver]=useState(false);
@@ -404,32 +438,38 @@ export default function App(){
     <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
 
       {/* LETTERHEAD */}
-      <nav style={{background:"var(--ink-900)",padding:"0 32px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:28,height:28,borderRadius:6,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--serif)",fontWeight:600,color:"white",fontSize:14}}>+</div>
-          <div>
-            <span style={{fontFamily:"var(--serif)",fontWeight:600,fontSize:15,color:"white"}}>ALL Detection System</span>
+      <nav style={{background:"var(--ink-900)",padding:isMobile?"0 12px":"0 32px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100,gap:8}}>
+        <div style={{display:"flex",alignItems:"center",gap:isMobile?8:12,minWidth:0}}>
+          <div style={{width:28,height:28,flexShrink:0,borderRadius:6,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--serif)",fontWeight:600,color:"white",fontSize:14}}>+</div>
+          <div style={{minWidth:0,overflow:"hidden"}}>
+            <span style={{fontFamily:"var(--serif)",fontWeight:600,fontSize:isMobile?13:15,color:"white",whiteSpace:"nowrap"}}>ALL Detection{!isMobile?" System":""}</span>
+        
           </div>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <div style={{display:"flex",alignItems:"center",gap:isMobile?6:10,flexShrink:0}}>
           <div style={{display:"flex",background:"rgba(255,255,255,0.06)",borderRadius:6,padding:3,border:"1px solid rgba(255,255,255,0.1)"}}>
-            {[{k:"predict",label:"Analyze"},{k:"history",label:"Case History"}].map(t=>(
-              <button key={t.k} onClick={()=>setActiveTab(t.k)} style={{padding:"6px 14px",borderRadius:4,border:"none",fontSize:12,fontWeight:600,background:activeTab===t.k?"var(--teal-700)":"transparent",color:activeTab===t.k?"white":"rgba(255,255,255,0.65)",transition:"all 0.2s"}}>
+            {[{k:"predict",label:isMobile?"Analyze":"Analyze"},{k:"history",label:isMobile?"History":"Case History"}].map(t=>(
+              <button key={t.k} onClick={()=>setActiveTab(t.k)} style={{padding:isMobile?"6px 10px":"6px 14px",borderRadius:4,border:"none",fontSize:isMobile?11:12,fontWeight:600,background:activeTab===t.k?"var(--teal-700)":"transparent",color:activeTab===t.k?"white":"rgba(255,255,255,0.65)",transition:"all 0.2s",whiteSpace:"nowrap"}}>
                 {t.label}
               </button>
             ))}
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:99,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",fontSize:11,fontWeight:500,color:"rgba(255,255,255,0.75)"}}>
-            <div style={{width:6,height:6,borderRadius:"50%",background:apiOk===null?"#7c8b9c":apiOk?"#2ea88f":"#c0574a",...(apiOk&&{animation:"pulse 2s infinite"})}}/>
-            {apiOk===null?"Checking…":apiOk?"Model Online":"Model Offline"}
-          </div>
-          <button onClick={logout} title="Log out" style={{padding:"6px 12px",borderRadius:4,border:"1px solid rgba(255,255,255,0.15)",background:"transparent",fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.65)"}}>Log out</button>
+          {!isMobile&&(
+            <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:99,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",fontSize:11,fontWeight:500,color:"rgba(255,255,255,0.75)"}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:apiOk===null?"#7c8b9c":apiOk?"#2ea88f":"#c0574a",...(apiOk&&{animation:"pulse 2s infinite"})}}/>
+              {apiOk===null?"Checking…":apiOk?"Model Online":"Model Offline"}
+            </div>
+          )}
+          {isMobile&&(
+            <div title={apiOk===null?"Checking…":apiOk?"Model Online":"Model Offline"} style={{width:8,height:8,borderRadius:"50%",flexShrink:0,background:apiOk===null?"#7c8b9c":apiOk?"#2ea88f":"#c0574a",...(apiOk&&{animation:"pulse 2s infinite"})}}/>
+          )}
+          <button onClick={logout} title="Log out" style={{padding:isMobile?"6px 8px":"6px 12px",borderRadius:4,border:"1px solid rgba(255,255,255,0.15)",background:"transparent",fontSize:isMobile?11:11,fontWeight:600,color:"rgba(255,255,255,0.65)",whiteSpace:"nowrap"}}>{isMobile?"Exit":"Log out"}</button>
         </div>
       </nav>
 
       {/* PAGE HEADER */}
       {activeTab==="predict"&&(
-      <div style={{background:"var(--white)",borderBottom:"1px solid var(--line)",padding:"32px 32px 28px"}}>
+      <div style={{background:"var(--white)",borderBottom:"1px solid var(--line)",padding:isMobile?"20px 16px 18px":"32px 32px 28px"}}>
         <div style={{maxWidth:1100,margin:"0 auto"}}>
           <p style={{fontSize:11,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",color:"var(--teal-700)",marginBottom:8}}>Peripheral Blood Smear Analysis</p>
           <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,3vw,32px)",fontWeight:600,lineHeight:1.25,color:"var(--ink-900)",marginBottom:10,maxWidth:640}}>
@@ -448,7 +488,7 @@ export default function App(){
       )}
 
       {/* MAIN */}
-      <main style={{flex:1,maxWidth:1100,width:"100%",margin:"0 auto",padding:activeTab==="predict"?"28px 24px 48px":"32px 24px 48px"}}>
+      <main style={{flex:1,maxWidth:1100,width:"100%",margin:"0 auto",padding:isMobile?(activeTab==="predict"?"18px 12px 40px":"20px 12px 40px"):(activeTab==="predict"?"28px 24px 48px":"32px 24px 48px")}}>
 
         {activeTab==="history"&&(
           <HistoryView
@@ -458,16 +498,17 @@ export default function App(){
             summary={historySummary}
             onRefresh={fetchHistory}
             onClear={clearHistory}
+            isMobile={isMobile}
           />
         )}
 
         {activeTab==="predict"&&(<>
-        <Card style={{padding:24,marginBottom:20}}>
+        <Card style={{padding:isMobile?16:24,marginBottom:20}}>
           <h2 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Specimen Upload</h2>
           <UploadZone onFile={handleFile} file={file} dragOver={dragOver} setDragOver={setDragOver} inputRef={inputRef}/>
 
           {file&&(
-            <div style={{display:"grid",gridTemplateColumns:result?.preview_b64?"1fr 1fr":"1fr",gap:12,marginTop:16}}>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":(result?.preview_b64?"1fr 1fr":"1fr"),gap:12,marginTop:16}}>
               <div style={{borderRadius:"var(--radius-sm)",overflow:"hidden",border:"1px solid var(--line)"}}>
                 <img src={preview} alt="Original" style={{width:"100%",height:180,objectFit:"cover",display:"block"}}/>
                 <div style={{padding:"8px 12px",background:"var(--paper)",fontSize:11,color:"var(--ink-500)",fontWeight:500,borderTop:"1px solid var(--line)"}}>Original specimen</div>
@@ -495,10 +536,10 @@ export default function App(){
         </Card>
 
         {loading&&(
-          <Card style={{padding:24,marginBottom:20}} className="fade-in">
+          <Card style={{padding:isMobile?16:24,marginBottom:20}} className="fade-in">
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <Skeleton h={32} radius={6}/><Skeleton h={16} w="60%" radius={4}/>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 1fr",gap:12}}>
                 <Skeleton h={90} radius={6}/><Skeleton h={90} radius={6}/><Skeleton h={90} radius={6}/>
               </div>
               <Skeleton h={100} radius={6}/>
@@ -508,9 +549,9 @@ export default function App(){
 
         {result&&!loading&&(
           <div className="fade-in" style={{display:"flex",flexDirection:"column",gap:20}}>
-            <ReportStamp result={result}/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-              <Card style={{padding:24}}>
+            <ReportStamp result={result} isMobile={isMobile}/>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:20}}>
+              <Card style={{padding:isMobile?16:24}}>
                 <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Classifier Votes</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
                   <ClassifierCard name="Support Vector Machine" vote={result.votes.SVM} prob={result.classifier_probs.SVM} color="var(--teal-600)"/>
@@ -522,7 +563,7 @@ export default function App(){
                 </div>
               </Card>
 
-              <Card style={{padding:24}}>
+              <Card style={{padding:isMobile?16:24}}>
                 <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Class Probabilities</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:14}}>
                   <StatBar label="ALL-Positive" value={result.probabilities.ALL} max={100} color="var(--red-600)"/>
@@ -540,7 +581,7 @@ export default function App(){
               </Card>
             </div>
 
-            <Card style={{padding:24}}>
+            <Card style={{padding:isMobile?16:24}}>
               <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Extracted Diagnostic Features</h3>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:10}}>
                 {Object.entries(result.features).map(([k,v])=>(<FeatureTile key={k} k={k} v={v}/>))}
@@ -556,12 +597,12 @@ export default function App(){
         )}
 
         {!file&&!result&&(
-          <Card style={{padding:48,textAlign:"center"}}>
+          <Card style={{padding:isMobile?"32px 20px":48,textAlign:"center"}}>
             <h3 style={{fontSize:17,fontWeight:600,fontFamily:"var(--serif)",color:"var(--ink-900)",marginBottom:8}}>Awaiting Specimen</h3>
             <p style={{fontSize:13,color:"var(--slate-400)",maxWidth:400,margin:"0 auto"}}>
               Upload a peripheral blood smear image above. The system runs the full ensemble pipeline and returns a classification in seconds.
             </p>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginTop:32,textAlign:"left"}}>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:14,marginTop:32,textAlign:"left"}}>
               {[
                 {title:"Preprocessing",desc:"Bilateral filtering + Otsu WBC nucleus segmentation"},
                 {title:"Feature Extraction",desc:"ResNet50 deep features + GLCM + Shape + Statistical (2,091-d)"},
@@ -580,7 +621,7 @@ export default function App(){
       </main>
 
       <footer style={{borderTop:"1px solid var(--line)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--slate-400)"}}>
-        Multi-Stage Ensemble Learning System for ALL Detection ·
+        Multi-Stage Ensemble Learning System for ALL Detection
       </footer>
     </div>
   );
