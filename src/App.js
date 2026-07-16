@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
-const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev";
+const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev ";
 // ngrok free tier shows an HTML interstitial to browser traffic unless this header is sent
 const NGROK_HEADERS = {"ngrok-skip-browser-warning":"1"};
 
