@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
-const API_BASE = "https://all-detection-backend.onrender.com";
+const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev";
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
