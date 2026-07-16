@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
-const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev ";
+const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev";
 // ngrok free tier shows an HTML interstitial to browser traffic unless this header is sent
 const NGROK_HEADERS = {"ngrok-skip-browser-warning":"1"};
 
@@ -327,8 +327,7 @@ export default function App(){
       .then(r=>{if(!r.ok)throw new Error("invalid");return r.json();})
       .then(()=>setAuthChecked(true))
       .catch(()=>{logout();setAuthChecked(true);});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[]);
+  },[token,authHeaders,logout]);
 
   useEffect(()=>{
     fetch(`${API_BASE}/api/health`,{headers:NGROK_HEADERS})
