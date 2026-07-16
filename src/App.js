@@ -439,7 +439,7 @@ export default function App(){
             A multi-stage ensemble evaluates uploaded blood smear images using deep and handcrafted morphological features. Results are produced for research reference and are not a substitute for professional pathological review.
           </p>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            {["Bilateral Filter","ResNet50 (2048-d)","GLCM + Shape","PCA Fusion","SVM · RF · GB","Stacking Ensemble"].map(t=>(
+            {["Bilateral Filter","ResNet50 (2048-d)","GLCM + Shape","PCA Fusion","SVM · RF · GB","Majority Voting"].map(t=>(
               <span key={t} style={{padding:"3px 10px",borderRadius:4,background:"var(--paper)",border:"1px solid var(--line)",fontSize:11,fontWeight:500,color:"var(--ink-500)",fontFamily:"var(--mono)"}}>{t}</span>
             ))}
           </div>
