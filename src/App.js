@@ -409,7 +409,6 @@ export default function App(){
           <div style={{width:28,height:28,borderRadius:6,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--serif)",fontWeight:600,color:"white",fontSize:14}}>+</div>
           <div>
             <span style={{fontFamily:"var(--serif)",fontWeight:600,fontSize:15,color:"white"}}>ALL Detection System</span>
-            <span style={{fontSize:11,color:"rgba(255,255,255,0.45)",marginLeft:10,letterSpacing:"0.02em"}}>FUTA · Dept. of Software Engineering</span>
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -532,12 +531,11 @@ export default function App(){
                 <div style={{height:1,background:"var(--line)",margin:"20px 0"}}/>
                 <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:14}}>Model Performance (test set)</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  {/* TODO: replace with real majority_vote_ensemble.py output once available */}
-                  <StatBar label="Accuracy"  value={90.22} color="var(--teal-600)"/>
-                  <StatBar label="Precision" value={89.52} color="var(--ink-500)"/>
-                  <StatBar label="Recall"    value={99.24} color="var(--amber-700)"/>
-                  <StatBar label="F1-Score"  value={94.13} color="var(--teal-700)"/>
-                  <StatBar label="ROC-AUC"   value={98.64} color="var(--ink-700)"/>
+                  <StatBar label="Accuracy"  value={92.02} color="var(--teal-600)"/>
+                  <StatBar label="Precision" value={99.17} color="var(--ink-500)"/>
+                  <StatBar label="Recall"    value={90.66} color="var(--amber-700)"/>
+                  <StatBar label="F1-Score"  value={94.72} color="var(--teal-700)"/>
+                  <StatBar label="ROC-AUC"   value={98.71} color="var(--ink-700)"/>
                 </div>
               </Card>
             </div>
