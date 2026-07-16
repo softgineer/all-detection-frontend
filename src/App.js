@@ -621,7 +621,7 @@ export default function App(){
       </main>
 
       <footer style={{borderTop:"1px solid var(--line)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--slate-400)"}}>
-        Multi-Stage Ensemble Learning System for ALL Detection
+        Multi-Stage Ensemble Learning System for ALL Detection...
       </footer>
     </div>
   );
