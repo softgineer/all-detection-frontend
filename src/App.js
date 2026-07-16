@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
 const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev";
+// ngrok free tier shows an HTML interstitial to browser traffic unless this header is sent
+const NGROK_HEADERS = {"ngrok-skip-browser-warning":"1"};
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -164,6 +166,77 @@ function Skeleton({h=20,w="100%",radius=6}){
   );
 }
 
+function HistoryRow({record}){
+  const isPos=record.label_id===1;
+  const date=new Date(record.timestamp);
+  const dateStr=date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+  const timeStr=date.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+  return(
+    <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,alignItems:"center",padding:"14px 16px",borderBottom:"1px solid var(--gray-100)"}}>
+      <div>
+        <p style={{fontSize:13,fontWeight:600,color:"var(--gray-800)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{record.filename||"unnamed"}</p>
+        <p style={{fontSize:11,color:"var(--gray-400)"}}>{dateStr} · {timeStr}</p>
+      </div>
+      <div><Badge color={isPos?"red":"green"}>{record.label||(isPos?"ALL +":"Normal")}</Badge></div>
+      <div style={{fontSize:13,fontFamily:"var(--mono)",color:"var(--gray-700)"}}>{record.confidence}%</div>
+      <div style={{fontSize:12,fontFamily:"var(--mono)",color:"var(--gray-500)"}}>{record.inference_ms}ms</div>
+      <div style={{display:"flex",gap:4}}>
+        {record.votes&&Object.entries(record.votes).map(([k,v])=>(
+          <span key={k} title={k} style={{fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:6,background:v===1?"var(--red-50)":"var(--green-50)",color:v===1?"var(--red-600)":"var(--green-600)"}}>{k[0]}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HistoryView({history,loading,error,summary,onRefresh,onClear}){
+  return(
+    <div className="fade-in">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
+        <div>
+          <h2 style={{fontSize:18,fontWeight:800,color:"var(--gray-900)",marginBottom:4}}>Prediction History</h2>
+          <p style={{fontSize:12,color:"var(--gray-400)"}}>Persisted on disk · {history.length} record{history.length===1?"":"s"} shown</p>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <Badge color="red">ALL+ {summary.ALL_positive||0}</Badge>
+          <Badge color="green">Normal {summary.Normal||0}</Badge>
+          <button onClick={onRefresh} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-200)",background:"var(--white)",fontSize:12,fontWeight:600,color:"var(--gray-700)"}}>↻ Refresh</button>
+          <button onClick={onClear} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",background:"var(--red-50)",fontSize:12,fontWeight:600,color:"var(--red-600)"}}>Clear All</button>
+        </div>
+      </div>
+
+      {error&&(
+        <div style={{marginBottom:14,padding:"12px 16px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",fontSize:13,color:"var(--red-600)"}}>
+          ⚠ {error}
+        </div>
+      )}
+
+      <Card style={{padding:0,overflow:"hidden"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,padding:"12px 16px",background:"var(--gray-50)",borderBottom:"1px solid var(--gray-100)"}}>
+          {["File / Time","Result","Confidence","Latency","Votes"].map(h=>(
+            <span key={h} style={{fontSize:11,fontWeight:700,color:"var(--gray-500)",textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</span>
+          ))}
+        </div>
+
+        {loading&&(
+          <div style={{padding:24,display:"flex",flexDirection:"column",gap:10}}>
+            <Skeleton h={40} radius={8}/><Skeleton h={40} radius={8}/><Skeleton h={40} radius={8}/>
+          </div>
+        )}
+
+        {!loading&&history.length===0&&(
+          <div style={{padding:48,textAlign:"center"}}>
+            <div style={{fontSize:36,marginBottom:12}}>🕘</div>
+            <p style={{fontSize:13,color:"var(--gray-400)"}}>No predictions yet. Run an analysis to see it appear here.</p>
+          </div>
+        )}
+
+        {!loading&&history.map(r=>(<HistoryRow key={r.id} record={r}/>))}
+      </Card>
+    </div>
+  );
+}
+
 export default function App(){
   injectCSS();
   const [file,setFile]=useState(null);
@@ -173,14 +246,43 @@ export default function App(){
   const [result,setResult]=useState(null);
   const [error,setError]=useState(null);
   const [apiOk,setApiOk]=useState(null);
+  const [activeTab,setActiveTab]=useState("predict"); // "predict" | "history"
+  const [history,setHistory]=useState([]);
+  const [historyLoading,setHistoryLoading]=useState(false);
+  const [historyError,setHistoryError]=useState(null);
+  const [historySummary,setHistorySummary]=useState({ALL_positive:0,Normal:0});
   const inputRef=useRef();
 
   useEffect(()=>{
-    fetch(`${API_BASE}/api/health`)
+    fetch(`${API_BASE}/api/health`,{headers:NGROK_HEADERS})
       .then(r=>r.json())
       .then(d=>setApiOk(d.models_ready===true))
       .catch(()=>setApiOk(false));
   },[]);
+
+  const fetchHistory=useCallback(async()=>{
+    setHistoryLoading(true);setHistoryError(null);
+    try{
+      const res=await fetch(`${API_BASE}/api/history`,{headers:NGROK_HEADERS});
+      if(!res.ok)throw new Error(`HTTP ${res.status}`);
+      const data=await res.json();
+      setHistory(data.records||[]);
+      setHistorySummary(data.summary||{ALL_positive:0,Normal:0});
+    }catch(e){setHistoryError(e.message);}
+    finally{setHistoryLoading(false);}
+  },[]);
+
+  useEffect(()=>{
+    if(activeTab==="history")fetchHistory();
+  },[activeTab,fetchHistory]);
+
+  const clearHistory=async()=>{
+    if(!window.confirm("Clear all prediction history? This cannot be undone."))return;
+    try{
+      await fetch(`${API_BASE}/api/history`,{method:"DELETE",headers:NGROK_HEADERS});
+      fetchHistory();
+    }catch(e){setHistoryError(e.message);}
+  };
 
   const handleFile=useCallback(f=>{
     setFile(f);setResult(null);setError(null);
@@ -193,9 +295,10 @@ export default function App(){
     const form=new FormData();
     form.append("file",file);
     try{
-      const res=await fetch(`${API_BASE}/api/predict`,{method:"POST",body:form});
+      const res=await fetch(`${API_BASE}/api/predict`,{method:"POST",body:form,headers:NGROK_HEADERS});
       if(!res.ok){const e=await res.json().catch(()=>({detail:"Unknown error"}));throw new Error(e.detail||`HTTP ${res.status}`);}
       setResult(await res.json());
+      if(activeTab==="history")fetchHistory();
     }catch(e){setError(e.message);}
     finally{setLoading(false);}
   };
@@ -213,6 +316,13 @@ export default function App(){
           </div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <div style={{display:"flex",background:"var(--gray-50)",borderRadius:99,padding:3,border:"1px solid var(--gray-100)"}}>
+            {[{k:"predict",label:"🔬 Predict"},{k:"history",label:"🕘 History"}].map(t=>(
+              <button key={t.k} onClick={()=>setActiveTab(t.k)} style={{padding:"6px 14px",borderRadius:99,border:"none",fontSize:12,fontWeight:600,background:activeTab===t.k?"var(--blue-600)":"transparent",color:activeTab===t.k?"white":"var(--gray-600)",transition:"all 0.2s"}}>
+                {t.label}
+              </button>
+            ))}
+          </div>
           <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:99,background:apiOk===null?"var(--gray-50)":apiOk?"var(--green-50)":"var(--red-50)",border:`1px solid ${apiOk===null?"var(--gray-100)":apiOk?"var(--green-100)":"var(--red-100)"}`,fontSize:12,fontWeight:500,color:apiOk===null?"var(--gray-400)":apiOk?"var(--green-600)":"var(--red-600)"}}>
             <div style={{width:7,height:7,borderRadius:"50%",background:apiOk===null?"var(--gray-300)":apiOk?"var(--green-500)":"var(--red-500)",...(apiOk&&{animation:"pulse 2s infinite"})}}/>
             {apiOk===null?"Checking API…":apiOk?"Backend Online":"Backend Offline"}
@@ -222,6 +332,7 @@ export default function App(){
       </nav>
 
       {/* HERO */}
+      {activeTab==="predict"&&(
       <div style={{background:"linear-gradient(135deg,var(--blue-600) 0%,#1e40af 100%)",padding:"48px 32px 56px",textAlign:"center",color:"white"}}>
         <h1 style={{fontSize:"clamp(24px,4vw,44px)",fontWeight:800,lineHeight:1.15,marginBottom:14}}>
           Acute Lymphoblastic Leukemia<br/>Detection System
@@ -235,10 +346,23 @@ export default function App(){
           ))}
         </div>
       </div>
+      )}
 
       {/* MAIN */}
-      <main style={{flex:1,maxWidth:1100,width:"100%",margin:"-28px auto 0",padding:"0 24px 48px"}}>
+      <main style={{flex:1,maxWidth:1100,width:"100%",margin:activeTab==="predict"?"-28px auto 0":"32px auto 0",padding:"0 24px 48px"}}>
 
+        {activeTab==="history"&&(
+          <HistoryView
+            history={history}
+            loading={historyLoading}
+            error={historyError}
+            summary={historySummary}
+            onRefresh={fetchHistory}
+            onClear={clearHistory}
+          />
+        )}
+
+        {activeTab==="predict"&&(<>
         <Card style={{padding:24,marginBottom:20}}>
           <h2 style={{fontSize:15,fontWeight:700,color:"var(--gray-800)",marginBottom:16}}>Upload Blood Smear Image</h2>
           <UploadZone onFile={handleFile} file={file} dragOver={dragOver} setDragOver={setDragOver} inputRef={inputRef}/>
@@ -354,6 +478,7 @@ export default function App(){
             </div>
           </Card>
         )}
+        </>)}
       </main>
 
       <footer style={{borderTop:"1px solid var(--gray-100)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--gray-400)"}}>
