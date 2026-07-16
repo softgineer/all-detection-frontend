@@ -582,7 +582,7 @@ export default function App(){
       </main>
 
       <footer style={{borderTop:"1px solid var(--line)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--slate-400)"}}>
-        Multi-Stage Ensemble Learning System for ALL Detection · Federal University of Technology, Akure · Dept. of Software Engineering
+        Multi-Stage Ensemble Learning System for ALL Detection ·
       </footer>
     </div>
   );
