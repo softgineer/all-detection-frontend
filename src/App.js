@@ -5,32 +5,32 @@ const API_BASE = "https://quilt-talisman-sadly.ngrok-free.dev";
 const NGROK_HEADERS = {"ngrok-skip-browser-warning":"1"};
 
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --white:#ffffff;--offwhite:#f8fafc;--gray-50:#f1f5f9;--gray-100:#e2e8f0;
-    --gray-200:#cbd5e1;--gray-400:#94a3b8;--gray-600:#475569;--gray-800:#1e293b;--gray-900:#0f172a;
-    --blue-50:#eff6ff;--blue-100:#dbeafe;--blue-500:#3b82f6;--blue-600:#2563eb;--blue-700:#1d4ed8;
-    --red-50:#fef2f2;--red-100:#fee2e2;--red-500:#ef4444;--red-600:#dc2626;
-    --green-50:#f0fdf4;--green-100:#dcfce7;--green-500:#22c55e;--green-600:#16a34a;
-    --purple-50:#faf5ff;--purple-500:#a855f7;--amber-50:#fffbeb;--amber-500:#f59e0b;
-    --sans:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
-    --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
-    --shadow:0 4px 16px rgba(0,0,0,0.08);--shadow-lg:0 10px 40px rgba(0,0,0,0.12);
-    --radius:14px;--radius-sm:8px;
+    --white:#ffffff;--paper:#f5f7f9;--paper-alt:#eceff3;
+    --line:#dee3e9;--line-strong:#c7cfd9;
+    --ink-900:#0b1220;--ink-700:#1b2a41;--ink-500:#3d5266;--slate-400:#7c8b9c;
+    --teal-900:#083a36;--teal-700:#0b5b56;--teal-600:#0f766e;--teal-50:#eaf6f4;
+    --red-900:#5c1710;--red-700:#8c2318;--red-600:#a3291d;--red-50:#fbeeec;
+    --amber-700:#92400e;--amber-50:#fdf3e7;
+    --serif:'Source Serif 4',Georgia,serif;--sans:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;
+    --shadow-sm:0 1px 2px rgba(11,18,32,0.06),0 1px 1px rgba(11,18,32,0.04);
+    --shadow:0 2px 10px rgba(11,18,32,0.07);--shadow-lg:0 12px 32px rgba(11,18,32,0.14);
+    --radius:10px;--radius-sm:6px;
   }
-  html,body,#root{height:100%;font-family:var(--sans);background:var(--offwhite);color:var(--gray-900);-webkit-font-smoothing:antialiased;}
+  html,body,#root{height:100%;font-family:var(--sans);background:var(--paper);color:var(--ink-900);-webkit-font-smoothing:antialiased;}
   button{font-family:var(--sans);cursor:pointer;}
   ::-webkit-scrollbar{width:5px;}
-  ::-webkit-scrollbar-track{background:var(--gray-50);}
-  ::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:99px;}
+  ::-webkit-scrollbar-track{background:var(--paper-alt);}
+  ::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px;}
   @keyframes spin{to{transform:rotate(360deg);}}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.45;}}
   @keyframes shimmer{0%{background-position:-400px 0;}100%{background-position:400px 0;}}
-  .fade-in{animation:fadeIn 0.4s ease forwards;}
+  .fade-in{animation:fadeIn 0.35s ease forwards;}
   .spin{animation:spin 0.8s linear infinite;}
-  .pulse{animation:pulse 1.8s ease infinite;}
+  .pulse{animation:pulse 2s ease infinite;}
 `;
 
 function injectCSS(){
@@ -44,37 +44,35 @@ function injectCSS(){
 
 function Card({children,style={},className=""}){
   return(
-    <div className={className} style={{background:"var(--white)",borderRadius:"var(--radius)",border:"1px solid var(--gray-100)",boxShadow:"var(--shadow-sm)",...style}}>
+    <div className={className} style={{background:"var(--white)",borderRadius:"var(--radius)",border:"1px solid var(--line)",boxShadow:"var(--shadow-sm)",...style}}>
       {children}
     </div>
   );
 }
 
-function Badge({children,color="blue"}){
+function Badge({children,color="ink"}){
   const map={
-    blue:{bg:"var(--blue-50)",color:"var(--blue-600)",border:"var(--blue-100)"},
-    red:{bg:"var(--red-50)",color:"var(--red-600)",border:"var(--red-100)"},
-    green:{bg:"var(--green-50)",color:"var(--green-600)",border:"var(--green-100)"},
-    gray:{bg:"var(--gray-50)",color:"var(--gray-600)",border:"var(--gray-100)"},
-    purple:{bg:"var(--purple-50)",color:"var(--purple-500)",border:"#ede9fe"},
-    amber:{bg:"var(--amber-50)",color:"var(--amber-500)",border:"#fde68a"},
+    ink:{bg:"var(--paper-alt)",color:"var(--ink-700)",border:"var(--line-strong)"},
+    teal:{bg:"var(--teal-50)",color:"var(--teal-700)",border:"#c9e7e2"},
+    red:{bg:"var(--red-50)",color:"var(--red-700)",border:"#eeccc5"},
+    amber:{bg:"var(--amber-50)",color:"var(--amber-700)",border:"#f3ddb0"},
   };
-  const s=map[color]||map.blue;
+  const s=map[color]||map.ink;
   return(
-    <span style={{display:"inline-flex",alignItems:"center",padding:"2px 10px",borderRadius:99,fontSize:11,fontWeight:600,letterSpacing:"0.03em",background:s.bg,color:s.color,border:`1px solid ${s.border}`}}>
+    <span style={{display:"inline-flex",alignItems:"center",padding:"2px 10px",borderRadius:4,fontSize:11,fontWeight:600,letterSpacing:"0.03em",background:s.bg,color:s.color,border:`1px solid ${s.border}`}}>
       {children}
     </span>
   );
 }
 
-function StatBar({label,value,max=100,color="var(--blue-500)"}){
+function StatBar({label,value,max=100,color="var(--teal-600)"}){
   return(
     <div style={{display:"flex",alignItems:"center",gap:10}}>
-      <span style={{fontSize:12,color:"var(--gray-600)",width:130,flexShrink:0}}>{label}</span>
-      <div style={{flex:1,height:6,background:"var(--gray-100)",borderRadius:99,overflow:"hidden"}}>
-        <div style={{height:"100%",borderRadius:99,background:color,width:`${Math.min((value/max)*100,100)}%`,transition:"width 1.2s cubic-bezier(.4,0,.2,1)"}}/>
+      <span style={{fontSize:12,color:"var(--ink-500)",width:130,flexShrink:0}}>{label}</span>
+      <div style={{flex:1,height:6,background:"var(--paper-alt)",borderRadius:3,overflow:"hidden"}}>
+        <div style={{height:"100%",borderRadius:3,background:color,width:`${Math.min((value/max)*100,100)}%`,transition:"width 1.2s cubic-bezier(.4,0,.2,1)"}}/>
       </div>
-      <span style={{fontSize:12,fontFamily:"var(--mono)",color:"var(--gray-800)",width:46,textAlign:"right",flexShrink:0}}>
+      <span style={{fontSize:12,fontFamily:"var(--mono)",color:"var(--ink-700)",width:46,textAlign:"right",flexShrink:0}}>
         {typeof value==="number"?value.toFixed(value>10?1:4):value}
       </span>
     </div>
@@ -88,46 +86,50 @@ function UploadZone({onFile,file,dragOver,setDragOver,inputRef}){
       onDragOver={e=>{e.preventDefault();setDragOver(true);}}
       onDragLeave={()=>setDragOver(false)}
       onDrop={e=>{e.preventDefault();setDragOver(false);const f=e.dataTransfer.files[0];if(f)onFile(f);}}
-      style={{border:`2px dashed ${dragOver?"var(--blue-500)":"var(--gray-200)"}`,borderRadius:"var(--radius)",padding:"40px 24px",textAlign:"center",cursor:"pointer",background:dragOver?"var(--blue-50)":"var(--gray-50)",transition:"all 0.2s"}}
+      style={{border:`1.5px dashed ${dragOver?"var(--teal-600)":"var(--line-strong)"}`,borderRadius:"var(--radius)",padding:"40px 24px",textAlign:"center",cursor:"pointer",background:dragOver?"var(--teal-50)":"var(--paper)",transition:"all 0.2s"}}
     >
       <input ref={inputRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{if(e.target.files[0])onFile(e.target.files[0]);}}/>
-      <div style={{width:52,height:52,borderRadius:14,background:dragOver?"var(--blue-100)":"var(--white)",border:"1px solid var(--gray-200)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:24,boxShadow:"var(--shadow-sm)"}}>🔬</div>
+      <div style={{width:48,height:48,borderRadius:8,background:dragOver?"var(--teal-50)":"var(--white)",border:"1px solid var(--line)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:20,boxShadow:"var(--shadow-sm)",color:"var(--teal-700)"}}>⊕</div>
       {file?(
         <>
-          <p style={{fontWeight:600,fontSize:14,color:"var(--gray-800)",marginBottom:4}}>{file.name}</p>
-          <p style={{fontSize:12,color:"var(--gray-400)"}}>Click to change image</p>
+          <p style={{fontWeight:600,fontSize:14,color:"var(--ink-700)",marginBottom:4}}>{file.name}</p>
+          <p style={{fontSize:12,color:"var(--slate-400)"}}>Click to select a different image</p>
         </>
       ):(
         <>
-          <p style={{fontWeight:600,fontSize:14,color:"var(--gray-800)",marginBottom:4}}>Drop blood smear image here</p>
-          <p style={{fontSize:12,color:"var(--gray-400)"}}>or click to browse · PNG, JPG, BMP, TIFF · max 20 MB</p>
+          <p style={{fontWeight:600,fontSize:14,color:"var(--ink-700)",marginBottom:4}}>Upload peripheral blood smear image</p>
+          <p style={{fontSize:12,color:"var(--slate-400)"}}>Drag and drop, or click to browse · PNG, JPG, BMP, TIFF · max 20 MB</p>
         </>
       )}
     </div>
   );
 }
 
-function VerdictBanner({result}){
+function ReportStamp({result}){
   const isPos=result.label_id===1;
+  const accent = isPos ? "var(--red-700)" : "var(--teal-700)";
+  const bg     = isPos ? "var(--red-50)"  : "var(--teal-50)";
+  const border = isPos ? "#eeccc5" : "#c9e7e2";
   return(
-    <div style={{borderRadius:"var(--radius)",background:isPos?"var(--red-50)":"var(--green-50)",border:`1px solid ${isPos?"var(--red-100)":"var(--green-100)"}`,padding:"20px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
-      <div style={{display:"flex",alignItems:"center",gap:14}}>
-        <div style={{width:52,height:52,borderRadius:"50%",background:isPos?"var(--red-100)":"var(--green-100)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24}}>
-          {isPos?"⚠️":"✅"}
-        </div>
-        <div>
-          <p style={{fontSize:11,color:isPos?"var(--red-600)":"var(--green-600)",fontWeight:600,marginBottom:2,textTransform:"uppercase",letterSpacing:"0.05em"}}>Classification Result</p>
-          <p style={{fontSize:24,fontWeight:800,color:isPos?"var(--red-600)":"var(--green-600)"}}>{result.label}</p>
-        </div>
+    <div style={{borderRadius:"var(--radius)",background:"var(--white)",border:`1px solid ${border}`,borderLeft:`4px solid ${accent}`,overflow:"hidden"}}>
+      <div style={{padding:"8px 20px",background:bg,borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:6}}>
+        <span style={{fontSize:10.5,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",color:accent}}>AI-Assisted Analysis · Research Use Only</span>
+        <span style={{fontSize:10.5,color:accent,fontFamily:"var(--mono)"}}>Ensemble v2 · stacking</span>
       </div>
-      <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
-        <div style={{textAlign:"right"}}>
-          <p style={{fontSize:11,color:"var(--gray-400)",marginBottom:2}}>Confidence</p>
-          <p style={{fontSize:22,fontWeight:700,fontFamily:"var(--mono)",color:isPos?"var(--red-600)":"var(--green-600)"}}>{result.confidence}%</p>
+      <div style={{padding:"20px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
+        <div>
+          <p style={{fontSize:11,color:"var(--slate-400)",fontWeight:600,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.05em"}}>Classification</p>
+          <p style={{fontSize:26,fontWeight:600,fontFamily:"var(--serif)",color:accent}}>{result.label}</p>
         </div>
-        <div style={{textAlign:"right"}}>
-          <p style={{fontSize:11,color:"var(--gray-400)",marginBottom:2}}>Inference</p>
-          <p style={{fontSize:22,fontWeight:700,fontFamily:"var(--mono)",color:"var(--gray-800)"}}>{result.inference_ms}ms</p>
+        <div style={{display:"flex",gap:24,flexWrap:"wrap"}}>
+          <div style={{textAlign:"right"}}>
+            <p style={{fontSize:11,color:"var(--slate-400)",marginBottom:2}}>Confidence</p>
+            <p style={{fontSize:20,fontWeight:600,fontFamily:"var(--mono)",color:"var(--ink-900)"}}>{result.confidence}%</p>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <p style={{fontSize:11,color:"var(--slate-400)",marginBottom:2}}>Inference time</p>
+            <p style={{fontSize:20,fontWeight:600,fontFamily:"var(--mono)",color:"var(--ink-900)"}}>{result.inference_ms}ms</p>
+          </div>
         </div>
       </div>
     </div>
@@ -137,15 +139,15 @@ function VerdictBanner({result}){
 function ClassifierCard({name,vote,prob,color}){
   const isPos=vote===1;
   return(
-    <div style={{borderRadius:"var(--radius-sm)",border:`1px solid ${isPos?"var(--red-100)":"var(--green-100)"}`,background:isPos?"var(--red-50)":"var(--green-50)",padding:"14px 16px"}}>
+    <div style={{borderRadius:"var(--radius-sm)",border:"1px solid var(--line)",background:"var(--paper)",padding:"14px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-        <span style={{fontSize:12,fontWeight:700,color:"var(--gray-700)"}}>{name}</span>
-        <Badge color={isPos?"red":"green"}>{isPos?"ALL +":"Normal"}</Badge>
+        <span style={{fontSize:12,fontWeight:600,color:"var(--ink-700)"}}>{name}</span>
+        <Badge color={isPos?"red":"teal"}>{isPos?"ALL +":"Normal"}</Badge>
       </div>
-      <div style={{height:5,background:"white",borderRadius:99,overflow:"hidden",marginBottom:6}}>
-        <div style={{height:"100%",width:`${prob}%`,background:color,borderRadius:99,transition:"width 1s ease"}}/>
+      <div style={{height:5,background:"var(--white)",borderRadius:3,overflow:"hidden",marginBottom:6,border:"1px solid var(--line)"}}>
+        <div style={{height:"100%",width:`${prob}%`,background:color,borderRadius:3,transition:"width 1s ease"}}/>
       </div>
-      <p style={{fontSize:11,color:"var(--gray-500)",fontFamily:"var(--mono)"}}>{prob}% probability</p>
+      <p style={{fontSize:11,color:"var(--slate-400)",fontFamily:"var(--mono)"}}>{prob}% probability</p>
     </div>
   );
 }
@@ -153,16 +155,16 @@ function ClassifierCard({name,vote,prob,color}){
 function FeatureTile({k,v}){
   const labels={nucleus_area_px:"Nucleus Area",nucleus_pixels:"Nucleus Pixels",circularity:"Circularity",solidity:"Solidity",nc_ratio:"N/C Ratio",eccentricity:"Eccentricity",glcm_contrast:"GLCM Contrast",glcm_energy:"GLCM Energy",glcm_homogeneity:"GLCM Homogeneity",glcm_correlation:"GLCM Correlation",mean_intensity_R:"Mean R Channel",mean_intensity_G:"Mean G Channel",mean_intensity_B:"Mean B Channel"};
   return(
-    <div style={{background:"var(--gray-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-100)",padding:"12px 14px"}}>
-      <p style={{fontSize:10,color:"var(--gray-400)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>{labels[k]||k}</p>
-      <p style={{fontSize:15,fontWeight:700,fontFamily:"var(--mono)",color:"var(--gray-900)"}}>{typeof v==="number"?(v>100?Math.round(v):v.toFixed(4)):v}</p>
+    <div style={{background:"var(--paper)",borderRadius:"var(--radius-sm)",border:"1px solid var(--line)",padding:"12px 14px"}}>
+      <p style={{fontSize:10,color:"var(--slate-400)",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>{labels[k]||k}</p>
+      <p style={{fontSize:15,fontWeight:600,fontFamily:"var(--mono)",color:"var(--ink-900)"}}>{typeof v==="number"?(v>100?Math.round(v):v.toFixed(4)):v}</p>
     </div>
   );
 }
 
 function Skeleton({h=20,w="100%",radius=6}){
   return(
-    <div style={{height:h,width:w,borderRadius:radius,background:"linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",backgroundSize:"400px 100%",animation:"shimmer 1.4s ease infinite"}}/>
+    <div style={{height:h,width:w,borderRadius:radius,background:"linear-gradient(90deg,#eceff3 25%,#dee3e9 50%,#eceff3 75%)",backgroundSize:"400px 100%",animation:"shimmer 1.4s ease infinite"}}/>
   );
 }
 
@@ -172,17 +174,17 @@ function HistoryRow({record}){
   const dateStr=date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
   const timeStr=date.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
   return(
-    <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,alignItems:"center",padding:"14px 16px",borderBottom:"1px solid var(--gray-100)"}}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,alignItems:"center",padding:"14px 16px",borderBottom:"1px solid var(--line)"}}>
       <div>
-        <p style={{fontSize:13,fontWeight:600,color:"var(--gray-800)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{record.filename||"unnamed"}</p>
-        <p style={{fontSize:11,color:"var(--gray-400)"}}>{dateStr} · {timeStr}</p>
+        <p style={{fontSize:13,fontWeight:600,color:"var(--ink-700)",marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{record.filename||"unnamed"}</p>
+        <p style={{fontSize:11,color:"var(--slate-400)"}}>{dateStr} · {timeStr}</p>
       </div>
-      <div><Badge color={isPos?"red":"green"}>{record.label||(isPos?"ALL +":"Normal")}</Badge></div>
-      <div style={{fontSize:13,fontFamily:"var(--mono)",color:"var(--gray-700)"}}>{record.confidence}%</div>
-      <div style={{fontSize:12,fontFamily:"var(--mono)",color:"var(--gray-500)"}}>{record.inference_ms}ms</div>
+      <div><Badge color={isPos?"red":"teal"}>{record.label||(isPos?"ALL +":"Normal")}</Badge></div>
+      <div style={{fontSize:13,fontFamily:"var(--mono)",color:"var(--ink-700)"}}>{record.confidence}%</div>
+      <div style={{fontSize:12,fontFamily:"var(--mono)",color:"var(--slate-400)"}}>{record.inference_ms}ms</div>
       <div style={{display:"flex",gap:4}}>
         {record.votes&&Object.entries(record.votes).map(([k,v])=>(
-          <span key={k} title={k} style={{fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:6,background:v===1?"var(--red-50)":"var(--green-50)",color:v===1?"var(--red-600)":"var(--green-600)"}}>{k[0]}</span>
+          <span key={k} title={k} style={{fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:4,background:v===1?"var(--red-50)":"var(--teal-50)",color:v===1?"var(--red-700)":"var(--teal-700)"}}>{k[0]}</span>
         ))}
       </div>
     </div>
@@ -194,40 +196,39 @@ function HistoryView({history,loading,error,summary,onRefresh,onClear}){
     <div className="fade-in">
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,flexWrap:"wrap",gap:12}}>
         <div>
-          <h2 style={{fontSize:18,fontWeight:800,color:"var(--gray-900)",marginBottom:4}}>Prediction History</h2>
-          <p style={{fontSize:12,color:"var(--gray-400)"}}>Persisted on disk · {history.length} record{history.length===1?"":"s"} shown</p>
+          <h2 style={{fontSize:19,fontWeight:600,fontFamily:"var(--serif)",color:"var(--ink-900)",marginBottom:4}}>Case History</h2>
+          <p style={{fontSize:12,color:"var(--slate-400)"}}>Persisted on disk · {history.length} record{history.length===1?"":"s"} shown</p>
         </div>
-        <div style={{display:"flex",gap:8}}>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
           <Badge color="red">ALL+ {summary.ALL_positive||0}</Badge>
-          <Badge color="green">Normal {summary.Normal||0}</Badge>
-          <button onClick={onRefresh} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-200)",background:"var(--white)",fontSize:12,fontWeight:600,color:"var(--gray-700)"}}>↻ Refresh</button>
-          <button onClick={onClear} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",background:"var(--red-50)",fontSize:12,fontWeight:600,color:"var(--red-600)"}}>Clear All</button>
+          <Badge color="teal">Normal {summary.Normal||0}</Badge>
+          <button onClick={onRefresh} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--line-strong)",background:"var(--white)",fontSize:12,fontWeight:600,color:"var(--ink-700)"}}>↻ Refresh</button>
+          <button onClick={onClear} style={{padding:"6px 14px",borderRadius:"var(--radius-sm)",border:"1px solid #eeccc5",background:"var(--red-50)",fontSize:12,fontWeight:600,color:"var(--red-700)"}}>Clear All</button>
         </div>
       </div>
 
       {error&&(
-        <div style={{marginBottom:14,padding:"12px 16px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",fontSize:13,color:"var(--red-600)"}}>
+        <div style={{marginBottom:14,padding:"12px 16px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid #eeccc5",fontSize:13,color:"var(--red-700)"}}>
           ⚠ {error}
         </div>
       )}
 
       <Card style={{padding:0,overflow:"hidden"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,padding:"12px 16px",background:"var(--gray-50)",borderBottom:"1px solid var(--gray-100)"}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 100px 90px 90px 120px",gap:12,padding:"12px 16px",background:"var(--paper)",borderBottom:"1px solid var(--line)"}}>
           {["File / Time","Result","Confidence","Latency","Votes"].map(h=>(
-            <span key={h} style={{fontSize:11,fontWeight:700,color:"var(--gray-500)",textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</span>
+            <span key={h} style={{fontSize:11,fontWeight:700,color:"var(--slate-400)",textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</span>
           ))}
         </div>
 
         {loading&&(
           <div style={{padding:24,display:"flex",flexDirection:"column",gap:10}}>
-            <Skeleton h={40} radius={8}/><Skeleton h={40} radius={8}/><Skeleton h={40} radius={8}/>
+            <Skeleton h={40} radius={6}/><Skeleton h={40} radius={6}/><Skeleton h={40} radius={6}/>
           </div>
         )}
 
         {!loading&&history.length===0&&(
           <div style={{padding:48,textAlign:"center"}}>
-            <div style={{fontSize:36,marginBottom:12}}>🕘</div>
-            <p style={{fontSize:13,color:"var(--gray-400)"}}>No predictions yet. Run an analysis to see it appear here.</p>
+            <p style={{fontSize:13,color:"var(--slate-400)"}}>No predictions yet. Run an analysis to see it appear here.</p>
           </div>
         )}
 
@@ -260,32 +261,37 @@ function LoginScreen({onLoggedIn}){
   };
 
   return(
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--offwhite)",padding:24}}>
-      <Card style={{padding:36,width:"100%",maxWidth:380}} className="fade-in">
-        <div style={{textAlign:"center",marginBottom:24}}>
-          <div style={{width:52,height:52,borderRadius:14,background:"var(--blue-600)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,margin:"0 auto 14px"}}>🩸</div>
-          <h1 style={{fontSize:18,fontWeight:800,color:"var(--gray-900)",marginBottom:4}}>ALL Detection</h1>
-          <p style={{fontSize:13,color:"var(--gray-400)"}}>Sign in to continue</p>
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--ink-900)",padding:24}}>
+      <Card style={{padding:"40px 36px",width:"100%",maxWidth:380,border:"1px solid var(--ink-700)"}} className="fade-in">
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{width:44,height:44,borderRadius:8,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}>
+            <span style={{color:"white",fontSize:18,fontFamily:"var(--serif)",fontWeight:600}}>+</span>
+          </div>
+          <h1 style={{fontSize:19,fontWeight:600,fontFamily:"var(--serif)",color:"var(--ink-900)",marginBottom:6}}>ALL Detection System</h1>
+          <p style={{fontSize:12,color:"var(--slate-400)"}}>Restricted access · Authorized personnel only</p>
         </div>
         <form onSubmit={submit}>
-          <label style={{fontSize:12,fontWeight:600,color:"var(--gray-600)",display:"block",marginBottom:6}}>Password</label>
+          <label style={{fontSize:11,fontWeight:600,color:"var(--ink-500)",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Password</label>
           <input
             type="password"
             value={password}
             onChange={e=>setPassword(e.target.value)}
             placeholder="Enter admin password"
             autoFocus
-            style={{width:"100%",padding:"11px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-200)",fontSize:14,fontFamily:"var(--sans)",marginBottom:14,outline:"none"}}
+            style={{width:"100%",padding:"11px 14px",borderRadius:"var(--radius-sm)",border:"1px solid var(--line-strong)",fontSize:14,fontFamily:"var(--sans)",marginBottom:14,outline:"none"}}
           />
           {error&&(
-            <div style={{marginBottom:14,padding:"10px 14px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",fontSize:13,color:"var(--red-600)"}}>
+            <div style={{marginBottom:14,padding:"10px 14px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid #eeccc5",fontSize:13,color:"var(--red-700)"}}>
               ⚠ {error}
             </div>
           )}
-          <button type="submit" disabled={loading||!password} style={{width:"100%",padding:"12px 0",borderRadius:"var(--radius-sm)",border:"none",background:loading||!password?"var(--gray-100)":"var(--blue-600)",color:loading||!password?"var(--gray-400)":"white",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-            {loading?<><div className="spin" style={{width:16,height:16,border:"2px solid var(--gray-300)",borderTopColor:"var(--blue-500)",borderRadius:"50%"}}/>Signing in…</>:"Sign In"}
+          <button type="submit" disabled={loading||!password} style={{width:"100%",padding:"12px 0",borderRadius:"var(--radius-sm)",border:"none",background:loading||!password?"var(--paper-alt)":"var(--teal-700)",color:loading||!password?"var(--slate-400)":"white",fontSize:14,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+            {loading?<><div className="spin" style={{width:16,height:16,border:"2px solid rgba(255,255,255,0.4)",borderTopColor:"white",borderRadius:"50%"}}/>Signing in…</>:"Sign In"}
           </button>
         </form>
+        <p style={{fontSize:11,color:"var(--slate-400)",textAlign:"center",marginTop:20,lineHeight:1.6}}>
+          Multi-Stage Ensemble Learning System for research use.<br/>Not intended for standalone clinical diagnosis.
+        </p>
       </Card>
     </div>
   );
@@ -384,8 +390,8 @@ export default function App(){
 
   if(!authChecked){
     return(
-      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}>
-        <div className="spin" style={{width:28,height:28,border:"3px solid var(--gray-200)",borderTopColor:"var(--blue-500)",borderRadius:"50%"}}/>
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--paper)"}}>
+        <div className="spin" style={{width:26,height:26,border:"3px solid var(--line)",borderTopColor:"var(--teal-600)",borderRadius:"50%"}}/>
       </div>
     );
   }
@@ -397,51 +403,52 @@ export default function App(){
   return(
     <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
 
-      {/* NAV */}
-      <nav style={{background:"var(--white)",borderBottom:"1px solid var(--gray-100)",padding:"0 32px",height:60,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100,boxShadow:"var(--shadow-sm)"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <div style={{width:32,height:32,borderRadius:8,background:"var(--blue-600)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>🩸</div>
+      {/* LETTERHEAD */}
+      <nav style={{background:"var(--ink-900)",padding:"0 32px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:28,height:28,borderRadius:6,background:"var(--teal-700)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"var(--serif)",fontWeight:600,color:"white",fontSize:14}}>+</div>
           <div>
-            <span style={{fontWeight:700,fontSize:15,color:"var(--gray-900)"}}>ALL Detection</span>
-            <span style={{fontSize:12,color:"var(--gray-400)",marginLeft:8}}>Multi-Stage Ensemble</span>
+            <span style={{fontFamily:"var(--serif)",fontWeight:600,fontSize:15,color:"white"}}>ALL Detection System</span>
           </div>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <div style={{display:"flex",background:"var(--gray-50)",borderRadius:99,padding:3,border:"1px solid var(--gray-100)"}}>
-            {[{k:"predict",label:"🔬 Predict"},{k:"history",label:"🕘 History"}].map(t=>(
-              <button key={t.k} onClick={()=>setActiveTab(t.k)} style={{padding:"6px 14px",borderRadius:99,border:"none",fontSize:12,fontWeight:600,background:activeTab===t.k?"var(--blue-600)":"transparent",color:activeTab===t.k?"white":"var(--gray-600)",transition:"all 0.2s"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{display:"flex",background:"rgba(255,255,255,0.06)",borderRadius:6,padding:3,border:"1px solid rgba(255,255,255,0.1)"}}>
+            {[{k:"predict",label:"Analyze"},{k:"history",label:"Case History"}].map(t=>(
+              <button key={t.k} onClick={()=>setActiveTab(t.k)} style={{padding:"6px 14px",borderRadius:4,border:"none",fontSize:12,fontWeight:600,background:activeTab===t.k?"var(--teal-700)":"transparent",color:activeTab===t.k?"white":"rgba(255,255,255,0.65)",transition:"all 0.2s"}}>
                 {t.label}
               </button>
             ))}
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:99,background:apiOk===null?"var(--gray-50)":apiOk?"var(--green-50)":"var(--red-50)",border:`1px solid ${apiOk===null?"var(--gray-100)":apiOk?"var(--green-100)":"var(--red-100)"}`,fontSize:12,fontWeight:500,color:apiOk===null?"var(--gray-400)":apiOk?"var(--green-600)":"var(--red-600)"}}>
-            <div style={{width:7,height:7,borderRadius:"50%",background:apiOk===null?"var(--gray-300)":apiOk?"var(--green-500)":"var(--red-500)",...(apiOk&&{animation:"pulse 2s infinite"})}}/>
-            {apiOk===null?"Checking API…":apiOk?"Backend Online":"Backend Offline"}
+          <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:99,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",fontSize:11,fontWeight:500,color:"rgba(255,255,255,0.75)"}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:apiOk===null?"#7c8b9c":apiOk?"#2ea88f":"#c0574a",...(apiOk&&{animation:"pulse 2s infinite"})}}/>
+            {apiOk===null?"Checking…":apiOk?"Model Online":"Model Offline"}
           </div>
-          <Badge color="blue">v1.0.0</Badge>
-          <button onClick={logout} title="Log out" style={{padding:"6px 12px",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-200)",background:"var(--white)",fontSize:12,fontWeight:600,color:"var(--gray-500)"}}>Log out</button>
+          <button onClick={logout} title="Log out" style={{padding:"6px 12px",borderRadius:4,border:"1px solid rgba(255,255,255,0.15)",background:"transparent",fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.65)"}}>Log out</button>
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* PAGE HEADER */}
       {activeTab==="predict"&&(
-      <div style={{background:"linear-gradient(135deg,var(--blue-600) 0%,#1e40af 100%)",padding:"48px 32px 56px",textAlign:"center",color:"white"}}>
-        <h1 style={{fontSize:"clamp(24px,4vw,44px)",fontWeight:800,lineHeight:1.15,marginBottom:14}}>
-          Acute Lymphoblastic Leukemia<br/>Detection System
-        </h1>
-        <p style={{fontSize:15,opacity:0.82,maxWidth:520,margin:"0 auto 28px",lineHeight:1.7}}>
-          Upload a peripheral blood smear image. The ensemble of SVM, Random Forest, and Gradient Boosting analyses it in real time using ResNet50 deep features and handcrafted GLCM, shape, and statistical descriptors.
-        </p>
-        <div style={{display:"flex",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
-          {["Bilateral Filter","ResNet50 (2048-d)","GLCM + Shape","PCA Fusion","SVM · RF · GB","Majority Vote"].map(t=>(
-            <span key={t} style={{padding:"4px 12px",borderRadius:99,background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",fontSize:11,fontWeight:500}}>{t}</span>
-          ))}
+      <div style={{background:"var(--white)",borderBottom:"1px solid var(--line)",padding:"32px 32px 28px"}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <p style={{fontSize:11,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",color:"var(--teal-700)",marginBottom:8}}>Peripheral Blood Smear Analysis</p>
+          <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(22px,3vw,32px)",fontWeight:600,lineHeight:1.25,color:"var(--ink-900)",marginBottom:10,maxWidth:640}}>
+            Acute Lymphoblastic Leukemia Detection
+          </h1>
+          <p style={{fontSize:14,color:"var(--ink-500)",maxWidth:620,lineHeight:1.65,marginBottom:16}}>
+            A multi-stage ensemble evaluates uploaded blood smear images using deep and handcrafted morphological features. Results are produced for research reference and are not a substitute for professional pathological review.
+          </p>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            {["Bilateral Filter","ResNet50 (2048-d)","GLCM + Shape","PCA Fusion","SVM · RF · GB","Stacking Ensemble"].map(t=>(
+              <span key={t} style={{padding:"3px 10px",borderRadius:4,background:"var(--paper)",border:"1px solid var(--line)",fontSize:11,fontWeight:500,color:"var(--ink-500)",fontFamily:"var(--mono)"}}>{t}</span>
+            ))}
+          </div>
         </div>
       </div>
       )}
 
       {/* MAIN */}
-      <main style={{flex:1,maxWidth:1100,width:"100%",margin:activeTab==="predict"?"-28px auto 0":"32px auto 0",padding:"0 24px 48px"}}>
+      <main style={{flex:1,maxWidth:1100,width:"100%",margin:"0 auto",padding:activeTab==="predict"?"28px 24px 48px":"32px 24px 48px"}}>
 
         {activeTab==="history"&&(
           <HistoryView
@@ -456,32 +463,32 @@ export default function App(){
 
         {activeTab==="predict"&&(<>
         <Card style={{padding:24,marginBottom:20}}>
-          <h2 style={{fontSize:15,fontWeight:700,color:"var(--gray-800)",marginBottom:16}}>Upload Blood Smear Image</h2>
+          <h2 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Specimen Upload</h2>
           <UploadZone onFile={handleFile} file={file} dragOver={dragOver} setDragOver={setDragOver} inputRef={inputRef}/>
 
           {file&&(
             <div style={{display:"grid",gridTemplateColumns:result?.preview_b64?"1fr 1fr":"1fr",gap:12,marginTop:16}}>
-              <div style={{borderRadius:"var(--radius-sm)",overflow:"hidden",border:"1px solid var(--gray-100)"}}>
+              <div style={{borderRadius:"var(--radius-sm)",overflow:"hidden",border:"1px solid var(--line)"}}>
                 <img src={preview} alt="Original" style={{width:"100%",height:180,objectFit:"cover",display:"block"}}/>
-                <div style={{padding:"8px 12px",background:"var(--gray-50)",fontSize:11,color:"var(--gray-500)",fontWeight:500}}>📁 Original Image</div>
+                <div style={{padding:"8px 12px",background:"var(--paper)",fontSize:11,color:"var(--ink-500)",fontWeight:500,borderTop:"1px solid var(--line)"}}>Original specimen</div>
               </div>
               {result?.preview_b64&&(
-                <div style={{borderRadius:"var(--radius-sm)",overflow:"hidden",border:"1px solid var(--gray-100)"}}>
+                <div style={{borderRadius:"var(--radius-sm)",overflow:"hidden",border:"1px solid var(--line)"}}>
                   <img src={`data:image/png;base64,${result.preview_b64}`} alt="Processed" style={{width:"100%",height:180,objectFit:"cover",display:"block"}}/>
-                  <div style={{padding:"8px 12px",background:"var(--gray-50)",fontSize:11,color:"var(--gray-500)",fontWeight:500}}>🧬 Segmented Nucleus</div>
+                  <div style={{padding:"8px 12px",background:"var(--paper)",fontSize:11,color:"var(--ink-500)",fontWeight:500,borderTop:"1px solid var(--line)"}}>Segmented nucleus boundary</div>
                 </div>
               )}
             </div>
           )}
 
           {file&&(
-            <button onClick={analyse} disabled={loading} style={{marginTop:16,width:"100%",padding:"13px 0",borderRadius:"var(--radius-sm)",border:"none",background:loading?"var(--gray-100)":"var(--blue-600)",color:loading?"var(--gray-400)":"white",fontSize:15,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:8,transition:"all 0.2s",boxShadow:loading?"none":"0 4px 14px rgba(37,99,235,0.35)"}}>
-              {loading?<><div className="spin" style={{width:18,height:18,border:"2px solid var(--gray-300)",borderTopColor:"var(--blue-500)",borderRadius:"50%"}}/>Analysing…</>:"⚡ Run Ensemble Analysis"}
+            <button onClick={analyse} disabled={loading} style={{marginTop:16,width:"100%",padding:"13px 0",borderRadius:"var(--radius-sm)",border:"none",background:loading?"var(--paper-alt)":"var(--teal-700)",color:loading?"var(--slate-400)":"white",fontSize:14,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:8,transition:"all 0.2s"}}>
+              {loading?<><div className="spin" style={{width:18,height:18,border:"2px solid rgba(255,255,255,0.35)",borderTopColor:"white",borderRadius:"50%"}}/>Analyzing specimen…</>:"Run Analysis"}
             </button>
           )}
 
           {error&&(
-            <div style={{marginTop:14,padding:"12px 16px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--red-100)",fontSize:13,color:"var(--red-600)"}}>
+            <div style={{marginTop:14,padding:"12px 16px",background:"var(--red-50)",borderRadius:"var(--radius-sm)",border:"1px solid #eeccc5",fontSize:13,color:"var(--red-700)"}}>
               ⚠ {error}
             </div>
           )}
@@ -490,58 +497,58 @@ export default function App(){
         {loading&&(
           <Card style={{padding:24,marginBottom:20}} className="fade-in">
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
-              <Skeleton h={32} radius={8}/><Skeleton h={16} w="60%" radius={6}/>
+              <Skeleton h={32} radius={6}/><Skeleton h={16} w="60%" radius={4}/>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-                <Skeleton h={90} radius={8}/><Skeleton h={90} radius={8}/><Skeleton h={90} radius={8}/>
+                <Skeleton h={90} radius={6}/><Skeleton h={90} radius={6}/><Skeleton h={90} radius={6}/>
               </div>
-              <Skeleton h={100} radius={8}/>
+              <Skeleton h={100} radius={6}/>
             </div>
           </Card>
         )}
 
         {result&&!loading&&(
           <div className="fade-in" style={{display:"flex",flexDirection:"column",gap:20}}>
-            <VerdictBanner result={result}/>
+            <ReportStamp result={result}/>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
               <Card style={{padding:24}}>
-                <h3 style={{fontSize:14,fontWeight:700,color:"var(--gray-800)",marginBottom:16}}>Classifier Votes</h3>
+                <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Classifier Votes</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  <ClassifierCard name="Support Vector Machine" vote={result.votes.SVM} prob={result.classifier_probs.SVM} color="var(--blue-500)"/>
-                  <ClassifierCard name="Random Forest" vote={result.votes.RF} prob={result.classifier_probs.RF} color="var(--purple-500)"/>
-                  <ClassifierCard name="Gradient Boosting" vote={result.votes.GB} prob={result.classifier_probs.GB} color="var(--amber-500)"/>
+                  <ClassifierCard name="Support Vector Machine" vote={result.votes.SVM} prob={result.classifier_probs.SVM} color="var(--teal-600)"/>
+                  <ClassifierCard name="Random Forest" vote={result.votes.RF} prob={result.classifier_probs.RF} color="var(--ink-500)"/>
+                  <ClassifierCard name="Gradient Boosting" vote={result.votes.GB} prob={result.classifier_probs.GB} color="var(--amber-700)"/>
                 </div>
-                <div style={{marginTop:14,padding:"10px 14px",background:"var(--gray-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--gray-100)",fontSize:11,color:"var(--gray-500)",fontFamily:"var(--mono)"}}>
-                  y_final = mode(y_SVM, y_RF, y_GB) · soft vote avg
+                <div style={{marginTop:14,padding:"10px 14px",background:"var(--paper)",borderRadius:"var(--radius-sm)",border:"1px solid var(--line)",fontSize:11,color:"var(--slate-400)",fontFamily:"var(--mono)"}}>
+                  stacked meta-learner · validation-tuned threshold
                 </div>
               </Card>
 
               <Card style={{padding:24}}>
-                <h3 style={{fontSize:14,fontWeight:700,color:"var(--gray-800)",marginBottom:16}}>Class Probabilities</h3>
+                <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Class Probabilities</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:14}}>
-                  <StatBar label="ALL-Positive" value={result.probabilities.ALL} max={100} color="var(--red-500)"/>
-                  <StatBar label="Normal" value={result.probabilities.Normal} max={100} color="var(--green-500)"/>
+                  <StatBar label="ALL-Positive" value={result.probabilities.ALL} max={100} color="var(--red-600)"/>
+                  <StatBar label="Normal" value={result.probabilities.Normal} max={100} color="var(--teal-600)"/>
                 </div>
-                <div style={{height:1,background:"var(--gray-100)",margin:"20px 0"}}/>
-                <h3 style={{fontSize:14,fontWeight:700,color:"var(--gray-800)",marginBottom:14}}>Model Performance</h3>
+                <div style={{height:1,background:"var(--line)",margin:"20px 0"}}/>
+                <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:14}}>Model Performance (test set)</h3>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  <StatBar label="Accuracy"  value={87.23} color="var(--blue-500)"/>
-                  <StatBar label="Precision" value={99.40} color="var(--purple-500)"/>
-                  <StatBar label="Recall"    value={84.34} color="var(--amber-500)"/>
-                  <StatBar label="F1-Score"  value={91.26} color="var(--green-500)"/>
-                  <StatBar label="ROC-AUC"   value={97.98} color="var(--blue-600)"/>
+                  <StatBar label="Accuracy"  value={90.22} color="var(--teal-600)"/>
+                  <StatBar label="Precision" value={89.52} color="var(--ink-500)"/>
+                  <StatBar label="Recall"    value={99.24} color="var(--amber-700)"/>
+                  <StatBar label="F1-Score"  value={94.13} color="var(--teal-700)"/>
+                  <StatBar label="ROC-AUC"   value={98.64} color="var(--ink-700)"/>
                 </div>
               </Card>
             </div>
 
             <Card style={{padding:24}}>
-              <h3 style={{fontSize:14,fontWeight:700,color:"var(--gray-800)",marginBottom:16}}>Extracted Diagnostic Features</h3>
+              <h3 style={{fontSize:13,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em",color:"var(--slate-400)",marginBottom:16}}>Extracted Diagnostic Features</h3>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:10}}>
                 {Object.entries(result.features).map(([k,v])=>(<FeatureTile key={k} k={k} v={v}/>))}
               </div>
-              <div style={{marginTop:14,padding:"10px 14px",background:"var(--blue-50)",borderRadius:"var(--radius-sm)",border:"1px solid var(--blue-100)",fontSize:11,color:"var(--blue-600)",display:"flex",gap:6,flexWrap:"wrap"}}>
-                <span style={{fontWeight:600}}>Pipeline:</span>
-                {["Bilateral filter","Otsu segmentation","ResNet50 2048-d","GLCM 18-d","Shape 10-d","Stats 15-d","L2 norm","PCA 50-d"].map(s=>(
-                  <span key={s} style={{padding:"1px 8px",borderRadius:99,background:"var(--blue-100)",fontSize:10,fontWeight:500}}>{s}</span>
+              <div style={{marginTop:14,padding:"10px 14px",background:"var(--paper)",borderRadius:"var(--radius-sm)",border:"1px solid var(--line)",fontSize:11,color:"var(--ink-500)",display:"flex",gap:6,flexWrap:"wrap",fontFamily:"var(--mono)"}}>
+                <span style={{fontWeight:600,color:"var(--slate-400)"}}>Pipeline:</span>
+                {["Bilateral filter","Otsu segmentation","ResNet50 2048-d","GLCM 18-d","Shape 10-d","Stats 15-d","L2 norm","PCA 100-d"].map(s=>(
+                  <span key={s} style={{padding:"1px 8px",borderRadius:4,background:"var(--white)",border:"1px solid var(--line)",fontSize:10,fontWeight:500}}>{s}</span>
                 ))}
               </div>
             </Card>
@@ -550,21 +557,20 @@ export default function App(){
 
         {!file&&!result&&(
           <Card style={{padding:48,textAlign:"center"}}>
-            <div style={{fontSize:48,marginBottom:16}}>🩸</div>
-            <h3 style={{fontSize:18,fontWeight:700,color:"var(--gray-800)",marginBottom:8}}>Ready to Analyse</h3>
-            <p style={{fontSize:13,color:"var(--gray-400)",maxWidth:380,margin:"0 auto"}}>
-              Upload a peripheral blood smear image above. The system will run the full 6-stage ensemble pipeline and return a classification in seconds.
+            <h3 style={{fontSize:17,fontWeight:600,fontFamily:"var(--serif)",color:"var(--ink-900)",marginBottom:8}}>Awaiting Specimen</h3>
+            <p style={{fontSize:13,color:"var(--slate-400)",maxWidth:400,margin:"0 auto"}}>
+              Upload a peripheral blood smear image above. The system runs the full ensemble pipeline and returns a classification in seconds.
             </p>
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginTop:32,textAlign:"left"}}>
               {[
-                {icon:"⚙️",title:"Preprocessing",desc:"Bilateral filtering + Otsu WBC nucleus segmentation"},
-                {icon:"🔬",title:"Feature Extraction",desc:"ResNet50 deep features + GLCM + Shape + Statistical (2,091-d)"},
-                {icon:"🧠",title:"Ensemble Classification",desc:"SVM + Random Forest + Gradient Boosting with majority voting"},
-              ].map(c=>(
-                <div key={c.title} style={{padding:16,borderRadius:"var(--radius-sm)",background:"var(--gray-50)",border:"1px solid var(--gray-100)"}}>
-                  <div style={{fontSize:24,marginBottom:8}}>{c.icon}</div>
-                  <p style={{fontSize:13,fontWeight:700,color:"var(--gray-800)",marginBottom:4}}>{c.title}</p>
-                  <p style={{fontSize:11,color:"var(--gray-400)",lineHeight:1.6}}>{c.desc}</p>
+                {title:"Preprocessing",desc:"Bilateral filtering + Otsu WBC nucleus segmentation"},
+                {title:"Feature Extraction",desc:"ResNet50 deep features + GLCM + Shape + Statistical (2,091-d)"},
+                {title:"Ensemble Classification",desc:"SVM + Random Forest + Gradient Boosting with stacked meta-learner"},
+              ].map((c,i)=>(
+                <div key={c.title} style={{padding:16,borderRadius:"var(--radius-sm)",background:"var(--paper)",border:"1px solid var(--line)",borderTop:"2px solid var(--teal-600)"}}>
+                  <p style={{fontSize:10,fontWeight:700,color:"var(--teal-700)",fontFamily:"var(--mono)",marginBottom:6}}>STAGE {i+1}</p>
+                  <p style={{fontSize:13,fontWeight:600,color:"var(--ink-700)",marginBottom:4}}>{c.title}</p>
+                  <p style={{fontSize:11,color:"var(--slate-400)",lineHeight:1.6}}>{c.desc}</p>
                 </div>
               ))}
             </div>
@@ -573,8 +579,8 @@ export default function App(){
         </>)}
       </main>
 
-      <footer style={{borderTop:"1px solid var(--gray-100)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--gray-400)"}}>
-        Multi-Stage Ensemble Learning System ·
+      <footer style={{borderTop:"1px solid var(--line)",background:"var(--white)",padding:"20px 32px",textAlign:"center",fontSize:11,color:"var(--slate-400)"}}>
+        Multi-Stage Ensemble Learning System for ALL Detection ·
       </footer>
     </div>
   );
